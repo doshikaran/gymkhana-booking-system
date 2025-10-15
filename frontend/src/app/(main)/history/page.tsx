@@ -1,8 +1,6 @@
 // src/app/(main)/history/page.tsx
 "use client";
 
-"use client";
-
 import AuthGate from "@/components/AuthGate";
 import Navbar from "@/components/Navbar";
 import { api } from "@/lib/api";

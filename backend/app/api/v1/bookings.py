@@ -58,7 +58,19 @@ async def list_bookings(
     svc = BookingService(session)
     upcoming = filter == "upcoming"
     bookings = await svc.bookings.list_for_member(str(current.id), sport=sport, upcoming=upcoming, limit=100)
-    return [map_booking(b) for b in bookings]
+    now = datetime.now(timezone.utc)
+    for b in bookings:
+        if b.end_time < now and b.status == "UPCOMING":
+            b.status = "COMPLETED"
+            session.add(b)
+
+    await session.commit()
+    if upcoming:
+        filtered = [b for b in bookings if b.status == "UPCOMING" and b.end_time >= now]
+    else:
+        filtered = [b for b in bookings if b.status == "COMPLETED" or b.end_time < now]
+
+    return [map_booking(b) for b in filtered]
 
 
 @router.get("/bookings/availability")
